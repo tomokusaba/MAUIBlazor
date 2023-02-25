@@ -1,0 +1,34 @@
+﻿@page "/fetchdata"
+@inject HttpClient http
+@using System.Net.Http
+@using MemoryPack;
+@using NewDatasourceTest;
+<h1>MemoryPack</h1>
+
+<QuickGrid Items="Yubins">
+    <PropertyColumn Property="@(c => c.Yubin7)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.Todofuken)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.City)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.Tyo)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.Flg1)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.Flg2)" Sortable="true" />
+    <PropertyColumn Property="@(c => c.Flg3)" Sortable="true" />
+</QuickGrid>
+
+@code {
+    private IQueryable<Yubin>? Yubins;
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            try {
+                var data = await http.GetByteArrayAsync(@"https://musewiki.net/YubinAPI/memorypack");
+                if (data != null) {
+                    Yubins = (MemoryPackSerializer.Deserialize<List<Yubin>>(data))!.AsQueryable();
+                }
+                StateHasChanged();
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+}
